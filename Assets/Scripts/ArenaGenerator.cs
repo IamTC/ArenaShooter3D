@@ -15,17 +15,10 @@ public class ArenaGenerator : MonoBehaviour
     public float SpawnedHeight;
     public int NumberOfObstacles;
     public Mesh PlayerMesh;
-    public List<GameObject> TileTypes;
-    //[HideInInspector]
-    //public List<Vector3> ArenaTiles;
-    //[HideInInspector]
-    //public List<Vector3> Enemies;
-    //[HideInInspector]
-    //public List<Vector3> Walls;
-    //[HideInInspector]
+    public List<GameObject> TileTypes;    
     [HideInInspector]
     List<Node> Nodes;
-    public Vector3 StartTile;
+    //public Vector3 StartTile;
     public Vector3 GoalNode;
 
     private EnemyBehaviour EnemyControl;
@@ -69,7 +62,7 @@ public class ArenaGenerator : MonoBehaviour
                 //Enemies.Add(spawnedEnemy.transform.position);
                 //Nodes.Add(new Node(spawnedEnemy.transform.position, NodeType.Enemy));
                 numEnemiesToSpawn--;
-                StartTile = spawnedEnemy.transform.position;
+                //StartTile = spawnedEnemy.transform.position;
             }
         }
     }
@@ -85,9 +78,8 @@ public class ArenaGenerator : MonoBehaviour
                 {
                     var randomTileType = Mathf.CeilToInt(Random.Range(0, TileTypes.Count));
                     var tile = Instantiate(TileTypes[randomTileType], new Vector3(x, 0, z), Quaternion.identity, transform);
-                    var randomWeight = Random.Range(0, 5);
-                    //ArenaTiles.Add(tile.transform.position);
-                    Nodes.Add(new Node(tile.transform.position, NodeType.Tile));
+                    var cost = tile.GetComponent<TileWeight>();                    
+                    Nodes.Add(new Node(tile.transform.position, NodeType.Tile, cost.Weight));
                 }
             }
         }
@@ -101,7 +93,7 @@ public class ArenaGenerator : MonoBehaviour
             var rightWall = Instantiate(Wall, new Vector3(-1, 0, z), Quaternion.identity, transform);
             var leftWall = Instantiate(Wall, new Vector3(Width, 0, z), Quaternion.identity, transform);
             Nodes.Add(new Node(rightWall.transform.position, NodeType.Wall));
-            Nodes.Add(new Node(leftWall.transform.position, NodeType.Tile));
+            Nodes.Add(new Node(leftWall.transform.position, NodeType.Wall));
 
             if (z > -1)
             {
@@ -187,21 +179,21 @@ public class ArenaGenerator : MonoBehaviour
         return false;
     }
 
-    public void BuildPath(IDictionary<Vector3, Vector3> nodeParents)
-    {
-        List<Vector3> path = new List<Vector3>();
-        Vector3 curr = StartTile;
-        while (curr != GoalNode)
-        {
-            path.Add(curr);
-            curr = nodeParents[curr];
-        }
+    //public void BuildPath(IDictionary<Vector3, Vector3> nodeParents)
+    //{
+    //    List<Vector3> path = new List<Vector3>();
+    //    Vector3 curr = StartTile;
+    //    while (curr != GoalNode)
+    //    {
+    //        path.Add(curr);
+    //        curr = nodeParents[curr];
+    //    }
 
-        if (path.Count > 0)
-        {
-            EnemyControl.SetMovement(path);
-        }
-    }
+    //    if (path.Count > 0)
+    //    {
+    //        EnemyControl.SetMovement(path);
+    //    }
+    //}
 
     private void CleanLists()
     {

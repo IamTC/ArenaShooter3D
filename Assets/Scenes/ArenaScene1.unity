@@ -219,7 +219,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Profile: {fileID: 11400000, guid: a123fc0ac58cb774e8592c925f167e7c, type: 2}
   m_StaticLightingSkyUniqueID: 1
-  m_SkySettings: {fileID: 639105736}
+  m_SkySettings: {fileID: 978235226}
   m_SkySettingsFromProfile: {fileID: -1658960478407648048, guid: a123fc0ac58cb774e8592c925f167e7c,
     type: 2}
 --- !u!4 &313761475
@@ -487,7 +487,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &639105736
+--- !u!1 &747039181
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 747039182}
+  m_Layer: 0
+  m_Name: DXRPrefab
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &747039182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747039181}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.796289, y: 0.17656499, z: 12.569159}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &978235226
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -588,36 +618,6 @@ MonoBehaviour:
   rectLightShadow:
     m_OverrideState: 0
     m_Value: 0
---- !u!1 &747039181
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 747039182}
-  m_Layer: 0
-  m_Name: DXRPrefab
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &747039182
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 747039181}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.796289, y: 0.17656499, z: 12.569159}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1039448234
 GameObject:
   m_ObjectHideFlags: 0
@@ -995,7 +995,7 @@ GameObject:
   - component: {fileID: 1604554743}
   - component: {fileID: 1604554742}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ArenaGenerator
   m_TagString: Arena
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1020,7 +1020,7 @@ MonoBehaviour:
   Wall: {fileID: 4588465528667922098, guid: 417d302935ce60d4d9e3bc4a526f60f0, type: 3}
   PlayerHealthUI: {fileID: 7594498884291903128, guid: 606af15faf808b84d8ab6c4d429507d2,
     type: 3}
-  NumberOfEnemies: 1
+  NumberOfEnemies: 3
   SpawnedHeight: 0
   NumberOfObstacles: 120
   PlayerMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
@@ -1028,7 +1028,6 @@ MonoBehaviour:
   - {fileID: 4652375177541670661, guid: 539e9b33df1b281449ed45182d898119, type: 3}
   - {fileID: 3546727608635150729, guid: 615639f95e07b5d46bd126db3de2c164, type: 3}
   - {fileID: 3939752499498004887, guid: f857d9690c772b541ba024767ce5937f, type: 3}
-  StartTile: {x: 0, y: 0, z: 0}
   GoalNode: {x: 0, y: 0, z: 0}
 --- !u!4 &1604554743
 Transform:
@@ -1087,4 +1086,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07e2373fb7b4a594abc88c58825f5c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridData: {fileID: 0}
+  GridData: {fileID: 1604554742}

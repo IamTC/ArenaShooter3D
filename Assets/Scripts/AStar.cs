@@ -20,7 +20,7 @@ public class AStar : MonoBehaviour
         GridData = GameObject.FindWithTag("Arena").GetComponent<ArenaGenerator>();
     }
 
-    public void StartAStar()
+    public Dictionary<Vector3,Vector3> StartAStar(Vector3 StartTile)
     {
         ClearLists();
 
@@ -61,7 +61,7 @@ public class AStar : MonoBehaviour
             }
         }
 
-        heuristicScore[enemPos] = DistanceEstimate(enemPos);
+        heuristicScore[enemPos] = DistanceEstimate(StartTile, enemPos);
         distanceFromStart[enemPos] = 0;
 
         // The item dequeued from a priority queue will always be the one with the lowest int value
@@ -77,12 +77,13 @@ public class AStar : MonoBehaviour
             nodeVisitCount++;
 
             // If our current node is the goal then stop
-            if (curr == GridData.StartTile)
+            if (curr == StartTile)
             {
                 print("A*" + " time: " + (Time.realtimeSinceStartup - timeNow).ToString());
                 print(string.Format("A* visits: {0} ({1:F2}%)", nodeVisitCount, (nodeVisitCount / (double)walkableNodes.Count) * 100));
-                GridData.BuildPath(nodeParents);
-                return;
+                //GridData.BuildPath(nodeParents);
+                //return;
+                return nodeParents;
             }
 
             IList<Vector3> neighbors = GridData.GetWalkableNodes(curr);
@@ -100,7 +101,7 @@ public class AStar : MonoBehaviour
                     nodeParents[node] = curr;
                     distanceFromStart[node] = currScore;
 
-                    int hScore = distanceFromStart[node] + DistanceEstimate(node);
+                    int hScore = distanceFromStart[node] + DistanceEstimate(StartTile, node);
                     heuristicScore[node] = hScore;
 
                     // If this node isn't already in the queue, make sure to add it. Since the
@@ -114,15 +115,16 @@ public class AStar : MonoBehaviour
             }
         }
 
-        GridData.BuildPath(nodeParents);
+        return nodeParents;
     }
 
-    int DistanceEstimate(Vector3 node)
+    int DistanceEstimate(Vector3 StartTile, Vector3 node)
     {
-        var goal = GridData.StartTile;
-        return (int)Mathf.Sqrt(Mathf.Pow(node.x - goal.x, 2) +
+        var goal = StartTile;
+        var cost = GridData.GetNodes().Find(tile => tile.position.x == node.x && tile.position.z == node.z).weight;
+        return (int)Math.Ceiling(Mathf.Sqrt(Mathf.Pow(node.x - goal.x, 2) +
             Mathf.Pow(node.y - goal.y, 2) +
-            Mathf.Pow(node.z - goal.z, 2));
+            Mathf.Pow(node.z - goal.z, 2)) * cost );
     }
 
     private void ClearLists()

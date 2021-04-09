@@ -33,11 +33,10 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetKey(KeyCode.S))
         {
 
-            //PositionVector = transform.position;
-            //PositionVector.x -= Time.deltaTime * PlayerSpeed;
-            //transform.position = PositionVector;
+            PositionVector = transform.position;
+            PositionVector.x -= Time.deltaTime * PlayerSpeed;
+            transform.position = PositionVector;
 
-            a.StartAStar();
         }
 
         if (Input.GetKey(KeyCode.A))
