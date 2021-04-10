@@ -42,7 +42,8 @@ public class EnemyBehaviour : MonoBehaviour
         Timer += Time.deltaTime;
         if (transform.position != NextNode)
         {
-            transform.position = Vector3.Lerp(transform.position, NextNode, Timer);
+            //transform.position = Vector3.Lerp(transform.position, NextNode, Timer);
+            transform.position = Vector3.MoveTowards(transform.position, NextNode, Timer);
         }
         else
         {

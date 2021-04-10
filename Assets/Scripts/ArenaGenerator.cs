@@ -90,15 +90,15 @@ public class ArenaGenerator : MonoBehaviour
         for (int z = -1; z <= Height; z++)
         {
 
-            var rightWall = Instantiate(Wall, new Vector3(-1, 0, z), Quaternion.identity, transform);
-            var leftWall = Instantiate(Wall, new Vector3(Width, 0, z), Quaternion.identity, transform);
+            var rightWall = Instantiate(Wall, new Vector3(-1, 1, z), Quaternion.identity, transform);
+            var leftWall = Instantiate(Wall, new Vector3(Width, 1, z), Quaternion.identity, transform);
             Nodes.Add(new Node(rightWall.transform.position, NodeType.Wall));
             Nodes.Add(new Node(leftWall.transform.position, NodeType.Wall));
 
             if (z > -1)
             {
-                var bottomWall = Instantiate(Wall, new Vector3(z, 0, -1), Quaternion.identity, transform);
-                var topWall = Instantiate(Wall, new Vector3(z, 0, Width), Quaternion.identity, transform);
+                var bottomWall = Instantiate(Wall, new Vector3(z, 1, -1), Quaternion.identity, transform);
+                var topWall = Instantiate(Wall, new Vector3(z, 1, Width), Quaternion.identity, transform);
                 Nodes.Add(new Node(bottomWall.transform.position, NodeType.Wall));
                 Nodes.Add(new Node(topWall.transform.position, NodeType.Wall));
             }
@@ -156,7 +156,7 @@ public class ArenaGenerator : MonoBehaviour
         var posX = Random.Range(0, Width);
         var posZ = Random.Range(0, Height);
 
-        if (IsTileOccupied(new Vector3(posX, positionY, posZ)))
+        if (IsTileOccupied(new Vector3(posX, 0, posZ)))
         {
             return null;
         }
@@ -178,22 +178,6 @@ public class ArenaGenerator : MonoBehaviour
 
         return false;
     }
-
-    //public void BuildPath(IDictionary<Vector3, Vector3> nodeParents)
-    //{
-    //    List<Vector3> path = new List<Vector3>();
-    //    Vector3 curr = StartTile;
-    //    while (curr != GoalNode)
-    //    {
-    //        path.Add(curr);
-    //        curr = nodeParents[curr];
-    //    }
-
-    //    if (path.Count > 0)
-    //    {
-    //        EnemyControl.SetMovement(path);
-    //    }
-    //}
 
     private void CleanLists()
     {

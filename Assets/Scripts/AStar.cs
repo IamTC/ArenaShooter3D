@@ -17,7 +17,6 @@ public class AStar : MonoBehaviour
     {
         priorityQueue = new SimplePriorityQueue<Vector3, int>();
         nodeParents = new Dictionary<Vector3, Vector3>();
-        GridData = GameObject.FindWithTag("Arena").GetComponent<ArenaGenerator>();
     }
 
     public Dictionary<Vector3,Vector3> StartAStar(Vector3 StartTile)
