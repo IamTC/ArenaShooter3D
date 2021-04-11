@@ -15,11 +15,10 @@ public class ArenaGenerator : MonoBehaviour
     public float SpawnedHeight;
     public int NumberOfObstacles;
     public Mesh PlayerMesh;
-    public List<GameObject> TileTypes;    
+    public List<GameObject> TileTypes;
     [HideInInspector]
     List<Node> Nodes;
-    //public Vector3 StartTile;
-    public Vector3 GoalNode;
+    public Node GoalNode;
 
     private EnemyBehaviour EnemyControl;
 
@@ -33,7 +32,7 @@ public class ArenaGenerator : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {        
+    {
     }
 
     private void GenerateArena()
@@ -50,7 +49,7 @@ public class ArenaGenerator : MonoBehaviour
         while ((spawnedPlayer = SpawnAtRandomTile(Player, SpawnedHeight)) == null) ;
         Instantiate(PlayerHealthUI, transform);
 
-        GoalNode = spawnedPlayer.transform.position;
+        GoalNode = new Node(new Vector3(spawnedPlayer.transform.position.x, 0, spawnedPlayer.transform.position.z), NodeType.Tile);
 
         int numEnemiesToSpawn = NumberOfEnemies;
 
@@ -59,10 +58,8 @@ public class ArenaGenerator : MonoBehaviour
             GameObject spawnedEnemy = SpawnAtRandomTile(Enemy, SpawnedHeight);
             if (spawnedEnemy != null)
             {
-                //Enemies.Add(spawnedEnemy.transform.position);
-                //Nodes.Add(new Node(spawnedEnemy.transform.position, NodeType.Enemy));
+                //Nodes.Add(new Node(new Vector3(spawnedEnemy.transform.position.x, 0, spawnedEnemy.transform.position.z), NodeType.Enemy));
                 numEnemiesToSpawn--;
-                //StartTile = spawnedEnemy.transform.position;
             }
         }
     }
@@ -74,12 +71,12 @@ public class ArenaGenerator : MonoBehaviour
             for (int x = 0; x < Width; x++)
             {
 
-                if (!IsTileOccupied(new Vector3(x, 0, z)))
+                if (!IsTileOccupied(new Node(new Vector3(x, 0, z), NodeType.Tile)))
                 {
                     var randomTileType = Mathf.CeilToInt(Random.Range(0, TileTypes.Count));
                     var tile = Instantiate(TileTypes[randomTileType], new Vector3(x, 0, z), Quaternion.identity, transform);
-                    var cost = tile.GetComponent<TileWeight>();                    
-                    Nodes.Add(new Node(tile.transform.position, NodeType.Tile, cost.Weight));
+                    var cost = tile.GetComponent<TileWeight>();
+                    Nodes.Add(new Node(new Vector3(tile.transform.position.x, 0, tile.transform.position.z), NodeType.Tile, cost.Weight));
                 }
             }
         }
@@ -92,15 +89,15 @@ public class ArenaGenerator : MonoBehaviour
 
             var rightWall = Instantiate(Wall, new Vector3(-1, 1, z), Quaternion.identity, transform);
             var leftWall = Instantiate(Wall, new Vector3(Width, 1, z), Quaternion.identity, transform);
-            Nodes.Add(new Node(rightWall.transform.position, NodeType.Wall));
-            Nodes.Add(new Node(leftWall.transform.position, NodeType.Wall));
+            Nodes.Add(new Node(new Vector3(rightWall.transform.position.x, 0, rightWall.transform.position.z), NodeType.Wall));
+            Nodes.Add(new Node(new Vector3(leftWall.transform.position.x, 0, leftWall.transform.position.z), NodeType.Wall));
 
             if (z > -1)
             {
                 var bottomWall = Instantiate(Wall, new Vector3(z, 1, -1), Quaternion.identity, transform);
                 var topWall = Instantiate(Wall, new Vector3(z, 1, Width), Quaternion.identity, transform);
-                Nodes.Add(new Node(bottomWall.transform.position, NodeType.Wall));
-                Nodes.Add(new Node(topWall.transform.position, NodeType.Wall));
+                Nodes.Add(new Node(new Vector3(bottomWall.transform.position.x, 0, bottomWall.transform.position.z), NodeType.Wall));
+                Nodes.Add(new Node(new Vector3(topWall.transform.position.x, 0, topWall.transform.position.z), NodeType.Wall));
             }
         }
     }
@@ -114,7 +111,7 @@ public class ArenaGenerator : MonoBehaviour
             if (obstacle != null)
             {
                 //Walls.Add(obstacle.transform.position);
-                Nodes.Add(new Node(obstacle.transform.position, NodeType.Wall));
+                Nodes.Add(new Node(new Vector3(obstacle.transform.position.x, 0, obstacle.transform.position.z), NodeType.Wall));
                 numObstacles--;
             }
         }
@@ -126,23 +123,23 @@ public class ArenaGenerator : MonoBehaviour
     }
 
 
-    public IList<Vector3> GetWalkableNodes(Vector3 curr)
+    public IList<Node> GetWalkableNodes(Node curr)
     {
-        IList<Vector3> walkableNodes = new List<Vector3>();
-        IList<Vector3> possibleNodes = new List<Vector3>(){
-            new Vector3(curr.x +1,0,curr.z),
-            new Vector3(curr.x,0,curr.z+1),
-            new Vector3(curr.x-1,0,curr.z),
-            new Vector3(curr.x,0,curr.z-1)
+        IList<Node> walkableNodes = new List<Node>();
+        IList<Node> possibleNodes = new List<Node>(){
+            new Node(new Vector3(curr.position.x +1,0,curr.position.z),NodeType.Tile),
+            new Node(new Vector3(curr.position.x,0,curr.position.z+1),NodeType.Tile),
+            new Node(new Vector3(curr.position.x-1,0,curr.position.z),NodeType.Tile),
+            new Node(new Vector3(curr.position.x,0,curr.position.z-1),NodeType.Tile)
             //new Vector3(curr.x+1,0,curr.z+1),
             //new Vector3(curr.x+1,0,curr.z-1),
             //new Vector3(curr.x-1,0,curr.z+1),
             //new Vector3(curr.x-1,0,curr.z-1)
         };
 
-        foreach (Vector3 node in possibleNodes)
+        foreach (Node node in possibleNodes)
         {
-            if (!IsTileOccupied(node) && (node.x >= 0 && node.x <= Width - 1) && (node.z >= 0 && node.z <= Height - 1))
+            if (!IsTileOccupied(node) && (node.position.x >= 0 && node.position.x <= Width - 1) && (node.position.z >= 0 && node.position.z <= Height - 1))
             {
                 walkableNodes.Add(node);
             }
@@ -156,7 +153,7 @@ public class ArenaGenerator : MonoBehaviour
         var posX = Random.Range(0, Width);
         var posZ = Random.Range(0, Height);
 
-        if (IsTileOccupied(new Vector3(posX, 0, posZ)))
+        if (IsTileOccupied(new Node(new Vector3(posX, 0, posZ), NodeType.Tile)))
         {
             return null;
         }
@@ -166,11 +163,11 @@ public class ArenaGenerator : MonoBehaviour
         }
     }
 
-    private bool IsTileOccupied(Vector3 position)
+    private bool IsTileOccupied(Node position)
     {
         foreach (var node in Nodes)
         {
-            if (node.position.x == position.x && node.position.z == position.z && node.nodeType != NodeType.Tile)
+            if (node.position.x == position.position.x && node.position.z == position.position.z && node.nodeType != NodeType.Tile)
             {
                 return true;
             }

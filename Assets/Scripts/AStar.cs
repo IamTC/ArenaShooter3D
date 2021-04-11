@@ -8,18 +8,18 @@ using UnityEngine;
 public class AStar : MonoBehaviour
 {
     public ArenaGenerator GridData;
-    private SimplePriorityQueue<Vector3, int> priorityQueue;
+    private SimplePriorityQueue<Node, int> priorityQueue;
     // Keep track of all visited notes + which node we got from
     // Necessary later for building the path
-    Dictionary<Vector3, Vector3> nodeParents;
+    Dictionary<Node, Node> nodeParents;
     // Start is called before the first frame update
     void Start()
     {
-        priorityQueue = new SimplePriorityQueue<Vector3, int>();
-        nodeParents = new Dictionary<Vector3, Vector3>();
+        priorityQueue = new SimplePriorityQueue<Node, int>();
+        nodeParents = new Dictionary<Node, Node>();
     }
 
-    public Dictionary<Vector3,Vector3> StartAStar(Vector3 StartTile)
+    public Dictionary<Node, Node> StartAStar(Node StartTile, Node GoalTile)
     {
         ClearLists();
 
@@ -30,64 +30,70 @@ public class AStar : MonoBehaviour
         //    h(x) is some heuristic that must be admissible, meaning it never overestimates the cost to the next node.
         //    There are formal logical proofs you can look up that determine how heuristics are and are not admissible.
 
-        IEnumerable<Vector3> validNodes;
-        List<Vector3> temp = new List<Vector3>();
+        IEnumerable<Node> validNodes;
+        List<Node> temp = new List<Node>();
         foreach (var node in GridData.GetNodes())
         {
-            if (node.nodeType != NodeType.Wall)
+            if (node.nodeType == NodeType.Tile)
             {
-                temp.Add(node.position);
+                temp.Add(node);
             }
         }
         validNodes = temp;
 
-        var enemPos = GridData.GoalNode;
-        var walkableNodes = GridData.GetNodes().FindAll(e => e.nodeType != NodeType.Wall);
+        var enemPos = GoalTile;
 
         // Represents h(x) or the score from whatever heuristic we're using
-        IDictionary<Vector3, int> heuristicScore = new Dictionary<Vector3, int>();
+        IDictionary<Node, int> heuristicScore = new Dictionary<Node, int>();
 
         // Represents g(x) or the distance from start to node "x" (Same meaning as in Dijkstra's "distances")
-        IDictionary<Vector3, int> distanceFromStart = new Dictionary<Vector3, int>();
+        IDictionary<Node, int> distanceFromStart = new Dictionary<Node, int>();
 
-        foreach (Vector3 vertex in validNodes)
+        foreach (Node vertex in validNodes)
         {
-            if (!heuristicScore.ContainsKey(new KeyValuePair<Vector3, int>(vertex, int.MaxValue).Key))
+            if (!heuristicScore.ContainsKey(new KeyValuePair<Node, int>(vertex, int.MaxValue).Key))
             {
-                heuristicScore.Add(new KeyValuePair<Vector3, int>(vertex, int.MaxValue));
-                distanceFromStart.Add(new KeyValuePair<Vector3, int>(vertex, int.MaxValue));
+                heuristicScore.Add(new KeyValuePair<Node, int>(vertex, int.MaxValue));
+                distanceFromStart.Add(new KeyValuePair<Node, int>(vertex, int.MaxValue));
 
             }
         }
-
+        foreach(KeyValuePair<Node, int> keyValuePair in heuristicScore)
+        {
+            if(keyValuePair.Key == enemPos)
+            {
+                Debug.Log("Found");
+            }
+        }
         heuristicScore[enemPos] = DistanceEstimate(StartTile, enemPos);
+        
         distanceFromStart[enemPos] = 0;
 
         // The item dequeued from a priority queue will always be the one with the lowest int value
         //    In this case we will input nodes with their calculated distances from the start g(x),
         //    so we will always take the node with the lowest distance from the queue.
-        SimplePriorityQueue<Vector3, int> priorityQueue = new SimplePriorityQueue<Vector3, int>();
+        SimplePriorityQueue<Node, int> priorityQueue = new SimplePriorityQueue<Node, int>();
         priorityQueue.Enqueue(enemPos, heuristicScore[enemPos]);
 
         while (priorityQueue.Count > 0)
         {
             // Get the node with the least distance from the start
-            Vector3 curr = priorityQueue.Dequeue();
+            Node curr = priorityQueue.Dequeue();
             nodeVisitCount++;
 
             // If our current node is the goal then stop
             if (curr == StartTile)
             {
                 print("A*" + " time: " + (Time.realtimeSinceStartup - timeNow).ToString());
-                print(string.Format("A* visits: {0} ({1:F2}%)", nodeVisitCount, (nodeVisitCount / (double)walkableNodes.Count) * 100));
+                print(string.Format("A* visits: {0} ({1:F2}%)", nodeVisitCount, (nodeVisitCount / (float)validNodes.Count() ) * 100));
                 //GridData.BuildPath(nodeParents);
                 //return;
                 return nodeParents;
             }
 
-            IList<Vector3> neighbors = GridData.GetWalkableNodes(curr);
+            IList<Node> neighbors = GridData.GetWalkableNodes(curr);
 
-            foreach (Vector3 node in neighbors)
+            foreach (Node node in neighbors)
             {
                 // Get the distance so far, add it to the distance to the neighbor
                 int currScore = distanceFromStart[curr] + 1;
@@ -117,13 +123,13 @@ public class AStar : MonoBehaviour
         return nodeParents;
     }
 
-    int DistanceEstimate(Vector3 StartTile, Vector3 node)
+    int DistanceEstimate(Node StartTile, Node node)
     {
         var goal = StartTile;
-        var cost = GridData.GetNodes().Find(tile => tile.position.x == node.x && tile.position.z == node.z).weight;
-        return (int)Math.Ceiling(Mathf.Sqrt(Mathf.Pow(node.x - goal.x, 2) +
-            Mathf.Pow(node.y - goal.y, 2) +
-            Mathf.Pow(node.z - goal.z, 2)) * cost );
+        //var cost = GridData.GetNodes().Find(tile => tile == node).weight;
+        return (int)Math.Ceiling(Mathf.Sqrt(Mathf.Pow(node.position.x - goal.position.x, 2) +
+            Mathf.Pow(node.position.y - goal.position.y, 2) +
+            Mathf.Pow(node.position.z - goal.position.z, 2)));
     }
 
     private void ClearLists()
