@@ -8,10 +8,11 @@ public class ArenaGenerator : MonoBehaviour
     public int Height;
 
     public GameObject Player;
-    public GameObject Enemy;
+    public GameObject DefaultEnemy;
+    public GameObject RangedEnemy;
+    public GameObject MeleeEnemy;
     public GameObject Wall;
     public GameObject PlayerHealthUI;
-    public int NumberOfEnemies;
     public float SpawnedHeight;
     public int NumberOfObstacles;
     public Mesh PlayerMesh;
@@ -19,6 +20,7 @@ public class ArenaGenerator : MonoBehaviour
     [HideInInspector]
     List<Node> Nodes;
     public Node GoalNode;
+    List<GameObject> Enemies;
 
     private EnemyBehaviour EnemyControl;
 
@@ -26,8 +28,9 @@ public class ArenaGenerator : MonoBehaviour
     void Start()
     {
         Nodes = new List<Node>();
+        Enemies = new List<GameObject>();
         GenerateArena();
-        EnemyControl = GameObject.FindWithTag("Enemy").GetComponent<EnemyBehaviour>();
+        EnemyControl = GameObject.FindWithTag("Enemy").GetComponent<EnemyBehaviour>();        
     }
 
     // Update is called once per frame
@@ -51,17 +54,9 @@ public class ArenaGenerator : MonoBehaviour
 
         GoalNode = new Node(new Vector3(spawnedPlayer.transform.position.x, 0, spawnedPlayer.transform.position.z), NodeType.Tile);
 
-        int numEnemiesToSpawn = NumberOfEnemies;
-
-        while (numEnemiesToSpawn > 0)
-        {
-            GameObject spawnedEnemy = SpawnAtRandomTile(Enemy, SpawnedHeight);
-            if (spawnedEnemy != null)
-            {
-                //Nodes.Add(new Node(new Vector3(spawnedEnemy.transform.position.x, 0, spawnedEnemy.transform.position.z), NodeType.Enemy));
-                numEnemiesToSpawn--;
-            }
-        }
+        GameObject spawnedEnemy = SpawnAtRandomTile(DefaultEnemy, SpawnedHeight);
+        GameObject rangedEnemy = SpawnAtRandomTile(RangedEnemy, SpawnedHeight);
+        GameObject meleeEnemy = SpawnAtRandomTile(MeleeEnemy, SpawnedHeight);
     }
 
     private void GenerateTiles()
@@ -131,10 +126,10 @@ public class ArenaGenerator : MonoBehaviour
             new Node(new Vector3(curr.position.x,0,curr.position.z+1),NodeType.Tile),
             new Node(new Vector3(curr.position.x-1,0,curr.position.z),NodeType.Tile),
             new Node(new Vector3(curr.position.x,0,curr.position.z-1),NodeType.Tile)
-            //new Vector3(curr.x+1,0,curr.z+1),
-            //new Vector3(curr.x+1,0,curr.z-1),
-            //new Vector3(curr.x-1,0,curr.z+1),
-            //new Vector3(curr.x-1,0,curr.z-1)
+            //new Node(new Vector3(curr.position.x +1,0,curr.position.z+1),NodeType.Tile),
+            //new Node(new Vector3(curr.position.x+1,0,curr.position.z-1),NodeType.Tile),
+            //new Node(new Vector3(curr.position.x-1,0,curr.position.z+1),NodeType.Tile),
+            //new Node(new Vector3(curr.position.x-1,0,curr.position.z-1),NodeType.Tile)
         };
 
         foreach (Node node in possibleNodes)
@@ -172,6 +167,13 @@ public class ArenaGenerator : MonoBehaviour
                 return true;
             }
         }
+        //foreach (var enemy in Enemies)
+        //{
+        //    if (enemy.transform.position.x == position.position.x && enemy.transform.position.z == position.position.z)
+        //    {
+        //        return true;
+        //    }
+        //}
 
         return false;
     }

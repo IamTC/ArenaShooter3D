@@ -12,6 +12,14 @@ public class PlayerControl : MonoBehaviour
     private ArenaGenerator Arena;
     public bool IsMoving;
     public bool IsTurning;
+    public Bullet Bullet;
+    public GameObject[] Enemies;
+
+
+    public int missChance = 50;
+    public int criticalDamageChance = 20;
+
+    private PlayerHealth HealthUI;
 
     // Start is called before the first frame update
     void Start()
@@ -20,25 +28,23 @@ public class PlayerControl : MonoBehaviour
         GameObject.FindGameObjectsWithTag("Arena");
         PositionVector = transform.position;
         Rotation = transform.position;
+        Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        HealthUI = GetComponent<PlayerHealth>();
     }
 
     // Update is called once per frame
     void Update()
     {
+
         if (!IsMoving)
         {
             if (Input.GetKey(KeyCode.W))
             {
-                //MovePlayerTo(new Vector3(PositionVector.x += Time.deltaTime * PlayerSpeed, 0, PositionVector.z));
                 PositionVector.x += 1;
                 if (checkCollWIthObs(PositionVector))
                 {
                     PositionVector.x -= 1;
                 }
-                //transform.position = Vector3.Slerp(transform.position, PositionVector, Time.deltaTime * 10);
-
-                var healthUI = GetComponent<PlayerHealth>();
-                healthUI.TakeDamage(10);
                 OnPlayerMove();
             }
 
@@ -49,9 +55,6 @@ public class PlayerControl : MonoBehaviour
                 {
                     PositionVector.x += 1;
                 }
-                //MovePlayerTo(new Vector3(PositionVector.x -= Time.deltaTime * PlayerSpeed, 0, PositionVector.z));
-
-                //transform.position = PositionVector;
                 OnPlayerMove();
             }
 
@@ -62,9 +65,6 @@ public class PlayerControl : MonoBehaviour
                 {
                     PositionVector.z -= 1;
                 }
-                //MovePlayerTo(new Vector3(PositionVector.x, 0, PositionVector.z += Time.deltaTime * PlayerSpeed));
-
-                //transform.position = PositionVector;
                 OnPlayerMove();
             }
 
@@ -75,11 +75,8 @@ public class PlayerControl : MonoBehaviour
                 {
                     PositionVector.z += 1;
                 }
-                //MovePlayerTo(new Vector3(PositionVector.x, 0, PositionVector.z -= Time.deltaTime * PlayerSpeed));
-
-                //transform.position = PositionVector;
                 OnPlayerMove();
-            }            
+            }
         }
 
 
@@ -93,6 +90,16 @@ public class PlayerControl : MonoBehaviour
                 SetTurn(hit);
             }
 
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            var bulletPosition = transform.position + transform.forward * 1.5f;
+            bulletPosition.y = 1.5f;
+
+            var BulletGameObj = Instantiate(Bullet, bulletPosition, Quaternion.identity);
+            var BulletRigidBody = BulletGameObj.GetComponent<Rigidbody>();
+            BulletRigidBody.velocity = transform.forward * 20f;
         }
 
         TurnToPoint();
@@ -111,16 +118,8 @@ public class PlayerControl : MonoBehaviour
 
     void TurnToPoint()
     {
-        //if(!IsTurning)
-        //{
-        //    return;
-        //}
-        var newDirection = Vector3.RotateTowards(transform.forward, Rotation, Time.deltaTime, 0.0f);
-        //if (!transform.rotation.Equals(newDirection))
-        //{
+        var newDirection = Vector3.RotateTowards(transform.forward, Rotation, Time.deltaTime * 1.5f, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
-        //IsTurning = false;
-        //}
     }
 
     void MovePlayerTo(Vector3 target)
@@ -149,6 +148,18 @@ public class PlayerControl : MonoBehaviour
                 return true;
             }
         }
+        foreach (var obstacle in Enemies)
+        {
+            if (obstacle != null)
+            {
+                var enemy = obstacle.GetComponent<EnemyBehaviour>();
+                if (CheckCollission(target, enemy.transform.position))
+                {
+                    return true;
+                }
+
+            }
+        }
         return false;
     }
 
@@ -171,6 +182,33 @@ public class PlayerControl : MonoBehaviour
         else
         {
             IsMoving = false;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.gameObject.tag != "Bullet")
+        {
+            return;
+        }
+        Destroy(collision.transform.gameObject);
+        var criticalDamageRand = Random.Range(0, 100);
+        var missRand = Random.Range(0, 100);
+        var damage = Random.Range(5, 10);
+
+        if (criticalDamageRand <= criticalDamageChance)
+        {
+            Debug.Log("Critical Damage");
+            damage *= 2;
+        }
+
+        if (missRand <= missChance)
+        {
+            Debug.Log("Miss");
+        }
+        else
+        {
+            HealthUI.TakeDamage(damage);
         }
     }
 

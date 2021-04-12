@@ -126,10 +126,10 @@ public class AStar : MonoBehaviour
     int DistanceEstimate(Node StartTile, Node node)
     {
         var goal = StartTile;
-        //var cost = GridData.GetNodes().Find(tile => tile == node).weight;
+        //var cost = GridData.GetNodes().Find(tile => tile.Equals(node)).weight;
         return (int)Math.Ceiling(Mathf.Sqrt(Mathf.Pow(node.position.x - goal.position.x, 2) +
             Mathf.Pow(node.position.y - goal.position.y, 2) +
-            Mathf.Pow(node.position.z - goal.position.z, 2)));
+            Mathf.Pow(node.position.z - goal.position.z, 2))  );
     }
 
     private void ClearLists()
